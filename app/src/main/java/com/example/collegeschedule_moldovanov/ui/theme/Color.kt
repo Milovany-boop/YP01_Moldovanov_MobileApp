@@ -1,4 +1,4 @@
-package com.example.collegeschedule_moldovanov.ui.theme
+package com.example.collegeschedule_moldovanov.data.theme
 
 import androidx.compose.ui.graphics.Color
 

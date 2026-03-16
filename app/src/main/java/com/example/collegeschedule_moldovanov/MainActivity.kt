@@ -23,7 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
-import com.example.collegeschedule_moldovanov.ui.theme.CollegeSchedule_MoldovanovTheme
+import com.example.collegeschedule_moldovanov.data.theme.CollegeSchedule_MoldovanovTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
