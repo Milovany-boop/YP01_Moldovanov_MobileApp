@@ -6,24 +6,25 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBox
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
-import com.example.collegeschedule_moldovanov.data.theme.CollegeSchedule_MoldovanovTheme
+import com.example.collegeschedule_moldovanov.data.api.ScheduleApi
+import com.example.collegeschedule_moldovanov.data.network.RetrofitInstance
+import com.example.collegeschedule_moldovanov.data.repository.ScheduleRepository
+import com.example.collegeschedule_moldovanov.ui.AppDestinations
+import com.example.collegeschedule_moldovanov.ui.schedule.ScheduleScreen
+import com.example.collegeschedule_moldovanov.ui.theme.CollegeSchedule_MoldovanovTheme
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,64 +32,46 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             CollegeSchedule_MoldovanovTheme {
-                CollegeSchedule_MoldovanovApp()
+                CollegeScheduleApp()
             }
         }
     }
 }
 
-@PreviewScreenSizes
 @Composable
-fun CollegeSchedule_MoldovanovApp() {
+fun CollegeScheduleApp() {
+    // Состояние текущей вкладки (сохраняется при повороте)
     var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.HOME) }
 
+    // Инициализация Retrofit и репозитория (один раз за время жизни композиции)
+    val retrofit = remember {
+        Retrofit.Builder()
+            .baseUrl("http://10.0.2.2:5281/") // убедитесь, что порт совпадает с вашим API
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+    val api = remember { retrofit.create(ScheduleApi::class.java) }
+    val repository = remember { ScheduleRepository(api) }
+
+    // Адаптивный навигационный контейнер
     NavigationSuiteScaffold(
         navigationSuiteItems = {
-            AppDestinations.entries.forEach {
+            // Создаём пункты меню для каждого значения enum
+            AppDestinations.entries.forEach { destination ->
                 item(
-                    icon = {
-                        Icon(
-                            it.icon,
-                            contentDescription = it.label
-                        )
-                    },
-                    label = { Text(it.label) },
-                    selected = it == currentDestination,
-                    onClick = { currentDestination = it }
+                    icon = { androidx.compose.material3.Icon(destination.icon, contentDescription = destination.title) },
+                    label = { Text(destination.title) },
+                    selected = currentDestination == destination,
+                    onClick = { currentDestination = destination }
                 )
             }
         }
     ) {
-        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-            Greeting(
-                name = "Android",
-                modifier = Modifier.padding(innerPadding)
-            )
+        // Содержимое выбранной вкладки
+        when (currentDestination) {
+            AppDestinations.HOME -> ScheduleScreen(repository)
+            AppDestinations.FAVORITES -> Text("Экран избранного (будет реализован позже)")
+            AppDestinations.PROFILE -> Text("Экран профиля (будет реализован позже)")
         }
-    }
-}
-
-enum class AppDestinations(
-    val label: String,
-    val icon: ImageVector,
-) {
-    HOME("Home", Icons.Default.Home),
-    FAVORITES("Favorites", Icons.Default.Favorite),
-    PROFILE("Profile", Icons.Default.AccountBox),
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    CollegeSchedule_MoldovanovTheme {
-        Greeting("Android")
     }
 }

@@ -10,23 +10,20 @@ import androidx.compose.runtime.setValue
 import com.example.collegeschedule_moldovanov.data.dto.ScheduleByDateDto
 import com.example.collegeschedule_moldovanov.data.network.RetrofitInstance
 import com.example.collegeschedule_moldovanov.utils.getWeekDateRange
+import com.example.collegeschedule_moldovanov.data.repository.ScheduleRepository
 
 @Composable
-fun ScheduleScreen() {
-
-    var schedule by remember {
-        mutableStateOf<List<ScheduleByDateDto>>(emptyList()) }
+fun ScheduleScreen(
+    repository: ScheduleRepository
+) {
+    var schedule by remember { mutableStateOf<List<ScheduleByDateDto>>(emptyList()) }
     var loading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
         val (start, end) = getWeekDateRange()
         try {
-            schedule = RetrofitInstance.api.getSchedule(
-                "ИС-12",
-                start,
-                end
-            )
+            schedule = repository.loadSchedule("ИС-12", start, end) // группа пока хардкод
         } catch (e: Exception) {
             error = e.message
         } finally {
