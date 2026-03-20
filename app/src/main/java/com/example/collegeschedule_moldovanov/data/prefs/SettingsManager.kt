@@ -21,7 +21,6 @@ class SettingsManager(context: Context) {
         private val FAVORITES_KEY = stringPreferencesKey("favorites")
     }
 
-
     val selectedGroupFlow: Flow<String?> = dataStore.data
         .map { preferences -> preferences[SELECTED_GROUP_KEY] }
 
@@ -31,7 +30,6 @@ class SettingsManager(context: Context) {
         }
     }
 
-
     val themeFlow: Flow<String> = dataStore.data
         .map { preferences -> preferences[THEME_KEY] ?: "system" }
 
@@ -40,7 +38,6 @@ class SettingsManager(context: Context) {
             preferences[THEME_KEY] = theme
         }
     }
-
 
     val favoritesFlow: Flow<Set<String>> = dataStore.data
         .map { preferences ->
