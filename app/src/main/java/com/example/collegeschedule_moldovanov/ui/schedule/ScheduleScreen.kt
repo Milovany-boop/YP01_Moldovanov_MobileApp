@@ -1,39 +1,68 @@
 package com.example.collegeschedule_moldovanov.ui.schedule
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import com.example.collegeschedule_moldovanov.data.dto.ScheduleByDateDto
-import com.example.collegeschedule_moldovanov.data.network.RetrofitInstance
-import com.example.collegeschedule_moldovanov.utils.getWeekDateRange
-import com.example.collegeschedule_moldovanov.data.repository.ScheduleRepository
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import com.example.collegeschedule_moldovanov.data.dto.ScheduleByDateDto
+import com.example.collegeschedule_moldovanov.data.prefs.SettingsManager
+import com.example.collegeschedule_moldovanov.data.repository.ScheduleRepository
+import com.example.collegeschedule_moldovanov.utils.getWeekDateRange
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScheduleScreen(
-    repository: ScheduleRepository
+    repository: ScheduleRepository,
+    settingsManager: SettingsManager,
+    onOpenGroupSelection: () -> Unit
 ) {
+    var selectedGroup by remember { mutableStateOf<String?>(null) }
     var schedule by remember { mutableStateOf<List<ScheduleByDateDto>>(emptyList()) }
     var loading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
-        val (start, end) = getWeekDateRange()
-        try {
-            schedule = repository.loadSchedule("ИС-12", start, end) // группа пока хардкод
-        } catch (e: Exception) {
-            error = e.message
-        } finally {
-            loading = false
+        settingsManager.selectedGroupFlow.collect { group ->
+            selectedGroup = group
+            if (group != null) {
+                val (start, end) = getWeekDateRange()
+                try {
+                    schedule = repository.loadSchedule(group, start, end)
+                } catch (e: Exception) {
+                    error = e.message
+                } finally {
+                    loading = false
+                }
+            } else {
+                loading = false
+            }
         }
     }
 
-    when {
-        loading -> CircularProgressIndicator()
-        error != null -> Text("Ошибка: $error")
-        else -> ScheduleList(schedule)
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(selectedGroup ?: "Расписание") },
+                actions = {
+                    IconButton(onClick = onOpenGroupSelection) {
+                        Icon(Icons.Default.Search, contentDescription = "Выбрать группу")
+                    }
+                }
+            )
+        }
+    ) { innerPadding ->
+        Box(modifier = Modifier.padding(innerPadding)) {
+            when {
+                selectedGroup == null -> {
+                    Text("Группа не выбрана. Нажмите на значок поиска.")
+                }
+                loading -> CircularProgressIndicator()
+                error != null -> Text("Ошибка: $error")
+                else -> ScheduleList(schedule)
+            }
+        }
     }
 }
