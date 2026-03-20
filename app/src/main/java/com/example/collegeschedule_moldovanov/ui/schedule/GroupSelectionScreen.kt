@@ -3,11 +3,15 @@ package com.example.collegeschedule_moldovanov.ui.schedule
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.foundation.clickable
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.dp
 import com.example.collegeschedule_moldovanov.data.repository.ScheduleRepository
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -22,7 +26,6 @@ fun GroupSelectionScreen(
     var error by remember { mutableStateOf<String?>(null) }
     var searchText by remember { mutableStateOf(TextFieldValue("")) }
 
-
     LaunchedEffect(Unit) {
         try {
             groups = repository.loadGroups()
@@ -32,7 +35,6 @@ fun GroupSelectionScreen(
             loading = false
         }
     }
-
 
     val filteredGroups = remember(groups, searchText.text) {
         groups.filter { it.contains(searchText.text, ignoreCase = true) }
@@ -51,23 +53,30 @@ fun GroupSelectionScreen(
         }
     ) { paddingValues ->
         Column(modifier = Modifier.padding(paddingValues)) {
-            // Поле поиска
             OutlinedTextField(
                 value = searchText,
                 onValueChange = { searchText = it },
                 label = { Text("Поиск группы") },
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
                 singleLine = true
             )
 
             when {
                 loading -> {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
                         CircularProgressIndicator()
                     }
                 }
                 error != null -> {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
                         Text("Ошибка: $error")
                     }
                 }
@@ -75,10 +84,10 @@ fun GroupSelectionScreen(
                     LazyColumn(modifier = Modifier.fillMaxSize()) {
                         items(filteredGroups) { group ->
                             ListItem(
-                                headlineText = { Text(group) },
+                                headlineContent = { Text(group) },
                                 modifier = Modifier.clickable { onGroupSelected(group) }
                             )
-                            Divider()
+                            HorizontalDivider()
                         }
                     }
                 }
