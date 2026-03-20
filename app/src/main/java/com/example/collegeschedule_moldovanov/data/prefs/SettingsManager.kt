@@ -29,7 +29,6 @@ class SettingsManager(context: Context) {
             preferences[SELECTED_GROUP_KEY] = groupName
         }
     }
-
     val themeFlow: Flow<String> = dataStore.data
         .map { preferences -> preferences[THEME_KEY] ?: "system" }
 
@@ -38,7 +37,6 @@ class SettingsManager(context: Context) {
             preferences[THEME_KEY] = theme
         }
     }
-
     val favoritesFlow: Flow<Set<String>> = dataStore.data
         .map { preferences ->
             preferences[FAVORITES_KEY]?.split(",")?.toSet() ?: emptySet()

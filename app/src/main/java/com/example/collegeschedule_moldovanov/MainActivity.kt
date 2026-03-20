@@ -1,12 +1,10 @@
 package com.example.collegeschedule_moldovanov
-
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -40,17 +38,15 @@ fun CollegeScheduleApp() {
 
     val context = LocalContext.current
     val settingsManager = remember { SettingsManager(context) }
-
     val theme by settingsManager.themeFlow.collectAsState(initial = "system")
     val darkTheme = when (theme) {
         "light" -> false
         "dark" -> true
         else -> isSystemInDarkTheme()
     }
-
     val retrofit = remember {
         Retrofit.Builder()
-            .baseUrl("http://10.0.2.2:5281/") // убедитесь, что порт совпадает с вашим API
+            .baseUrl("http://10.0.2.2:5281/")  
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
