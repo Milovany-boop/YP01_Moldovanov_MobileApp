@@ -47,6 +47,7 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation("androidx.datastore:datastore-preferences:1.1.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
